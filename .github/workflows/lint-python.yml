@@ -1,0 +1,26 @@
+name: Lint Python
+
+on: [push, pull_request]
+
+jobs:
+  lint-python:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Check out Git repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+
+      - name: Install Python dependencies
+        run: pip install autopep8 flake8
+
+      - name: Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          auto_fix: true
+          autopep8: true
+          flake8: true

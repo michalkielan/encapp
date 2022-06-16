@@ -1,0 +1,59 @@
+name: Test Android
+
+on: [push, pull_request]
+
+env:
+  ADB_INSTALL_TIMEOUT: 8
+  ANDROID_SERIAL: emulator-5554
+
+jobs:
+  tests:
+    runs-on: macos-12
+    strategy:
+      matrix:
+        api-level: [28]
+        python-version: ["3.8"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest humanfriendly numpy pandas seaborn protobuf
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: AVD cache
+        uses: actions/cache@v3
+        id: avd-cache
+        with:
+          path: |
+            ~/.android/avd/*
+            ~/.android/adb*
+          key: avd-${{ matrix.api-level }}
+
+      - name: Create AVD and generate snapshot for caching
+        if: steps.avd-cache.outputs.cache-hit != 'true'
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: false
+          script: echo "Generated AVD snapshot for caching."
+
+      - name: Run tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: ${{ matrix.api-level }}
+          force-avd-creation: false
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
+          disable-animations: true
+          script: |
+            adb wait-for-device shell 'while [[ -z $(getprop sys.boot_completed) ]]; do sleep 1; done; input keyevent 82'
+            pytest scripts/tests/system
