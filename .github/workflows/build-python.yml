@@ -1,13 +1,12 @@
-name: build
+name: Build Python
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-  build:
-    runs-on: macos-latest
+  build-python:
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        api-level: [29]
         python-version: ["3.6", "3.9"]
     steps:
       - name: Checkout
@@ -27,15 +26,3 @@ jobs:
           flake8 scripts --exclude scripts/proto --count --exit-zero --statistics
           pylint scripts --ignore scripts/proto --errors-only --exit-zero
           pylint scripts --ignore scripts/proto --exit-zero
-      
-      - uses: actions/setup-java@v2
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Build android
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: ${{ matrix.api-level }}
-          script: |
-            ./gradlew build
