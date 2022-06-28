@@ -6,7 +6,7 @@ import pandas as pd
 import seaborn as sb
 import matplotlib.pyplot as plt
 import numpy as np
-import encapp as ep
+from utils.utils import convert_to_bps
 
 # pd.options.mode.chained_assignment = 'raise'
 
@@ -57,7 +57,7 @@ def parse_encoding_data(json, inputfile, debug=0):
         data['camera'] = (json['testdefinition'].find(
             "filepath: \"camera\"")) > 0
         data['test'] = json['test']
-        data['bitrate'] = ep.convert_to_bps(json['settings']['bitrate'])
+        data['bitrate'] = convert_to_bps(json['settings']['bitrate'])
         data['height'] = json['settings']['height']
         fps = json['settings']['fps']
         data['fps'] = fps

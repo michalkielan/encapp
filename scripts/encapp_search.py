@@ -23,7 +23,7 @@ import json
 import os
 import pandas as pd
 import re
-from encapp import convert_to_bps
+from utils.utils import convert_to_bps
 
 INDEX_FILE_NAME = '.encapp_index'
 

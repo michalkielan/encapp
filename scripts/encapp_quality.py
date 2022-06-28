@@ -14,7 +14,7 @@ import re
 
 from os.path import exists
 from encapp_tool.adb_cmds import run_cmd
-from encapp import convert_to_bps
+from utils.utils import convert_to_bps
 
 PSNR_RE = 'average:([0-9.]*)'
 SSIM_RE = 'SSIM Y:([0-9.]*)'
